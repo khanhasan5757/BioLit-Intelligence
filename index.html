@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioLit Intelligence - AI Research Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d4ff;
+            --primary-dark: #0099cc;
+            --primary-light: #00f0ff;
+            --secondary: #7c3aed;
+            --accent: #ff006e;
+            --success: #00ff88;
+            --warning: #ffb700;
+            --error: #ff3333;
+            --bg-1: #0a0e27;
+            --bg-2: #141829;
+            --bg-3: #1a1f3a;
+            --bg-4: #252d4a;
+            --text-1: #ffffff;
+            --text-2: #a8b5d1;
+            --text-3: #6b7493;
+            --border: #2d3548;
+            --glow: rgba(0, 212, 255, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+            color: var(--text-1);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ANIMATED BACKGROUND */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            animation: bgFloat 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(50px, 50px); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+            border: 1px solid var(--border);
+            padding: 80px 60px;
+            border-radius: 24px;
+            text-align: center;
+            margin-bottom: 60px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            animation: headerGlow 3s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes headerGlow {
+            0%, 100% { 
+                box-shadow: 0 20px 60px rgba(0, 212, 255, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            }
+            50% { 
+                box-shadow: 0 20px 80px rgba(0, 212, 255, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            opacity: 0.1;
+            animation: orb 15s ease-in-out infinite;
+        }
+
+        @keyframes orb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-50px, 50px) scale(1.2); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header h1 {
+            font-size: 4em;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 50%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+            animation: titleSlideIn 0.8s ease-out;
+        }
+
+        @keyframes titleSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header p {
+            font-size: 1.3em;
+            color: var(--text-2);
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            animation: subtitleFadeIn 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes subtitleFadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* ===== STATS ===== */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+            animation: statsAppear 0.8s ease-out 0.4s both;
+        }
+
+        @keyframes statsAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            animation: tabsSlideIn 0.8s ease-out 0.3s both;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
+        }
+
+        @keyframes tabsSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-button {
+            padding: 14px 24px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.05em;
+            color: var(--text-3);
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            white-space: nowrap;
+            position: relative;
+            letter-spacing: 0.3px;
+        }
+
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 1px;
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .tab-button:hover {
+            color: var(--primary-light);
+            background: rgba(0, 212, 255, 0.08);
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            background: rgba(0, 212, 255, 0.12);
+        }
+
+        .tab-button.active::after {
+            transform: scaleX(1);
+        }
+
+        /* ===== TAB CONTENT ===== */
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+            animation: contentSlideIn 0.5s ease-out;
+            backdrop-filter: blur(15px);
+        }
+
+        @keyframes contentSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ===== FORMS ===== */
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 700;
+            color: var(--text-1);
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            font-size: 1.05em;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-1);
+            resize: vertical;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-3);
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0, 212, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        }
+
+        /* ===== BUTTON ===== */
+        button {
+            position: relative;
+            padding: 16px 40px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--bg-1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.25);
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+            z-index: 0;
+        }
+
+        button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 45px rgba(0, 212, 255, 0.35);
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ===== RESULT CARDS ===== */
+        .paper {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%);
+            border: 1px solid var(--border);
+            padding: 28px;
+            margin: 20px 0;
+            border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: cardSlideUp 0.6s ease-out;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes cardSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .paper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .paper:hover::before {
+            left: 100%;
+        }
+
+        .paper:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 50px rgba(0, 212, 255, 0.2);
+        }
+
+        .paper h3 {
+            margin-bottom: 15px;
+            color: var(--primary-light);
+            font-size: 1.35em;
+            line-height: 1.5;
+            transition: color 0.3s;
+        }
+
+        .paper:hover h3 {
+            color: var(--primary);
+        }
+
+        .paper-meta {
+            font-size: 0.95em;
+            color: var(--text-3);
+            margin-bottom: 16px;
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .paper-meta strong {
+            color: var(--text-2);
+        }
+
+        .paper p {
+            margin: 0;
+            line-height: 1.8;
+            color: var(--text-2);
+            font-size: 1.02em;
+        }
+
+        /* ===== ANALYSIS BOXES ===== */
+        .analysis {
+            border-radius: 16px;
+            padding: 32px;
+            margin: 25px 0;
+            border-left: 6px solid;
+            background: rgba(255, 255, 255, 0.02);
+            animation: analysisAppear 0.6s ease-out;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+        }
+
+        @keyframes analysisAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .analysis.misinformation {
+            border-left-color: var(--error);
+            background: linear-gradient(135deg, rgba(255, 51, 51, 0.08) 0%, rgba(255, 51, 51, 0.02) 100%);
+        }
+
+        .analysis.credible {
+            border-left-color: var(--success);
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.08) 0%, rgba(0, 255, 136, 0.02) 100%);
+        }
+
+        .analysis h3 {
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+
+        .analysis.misinformation h3 {
+            color: var(--error);
+        }
+
+        .analysis.credible h3 {
+            color: var(--success);
+        }
+
+        .analysis p {
+            color: var(--text-2);
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+
+        /* ===== NOTES ===== */
+        .notes {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.12) 0%, rgba(124, 58, 237, 0.08) 100%);
+            border: 2px solid var(--primary);
+            padding: 32px;
+            border-radius: 16px;
+            margin: 25px 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: var(--text-2);
+            line-height: 1.9;
+            animation: notesSlideIn 0.6s ease-out;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+        }
+
+        @keyframes notesSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .notes strong {
+            color: var(--primary-light);
+            font-weight: 700;
+        }
+
+        /* ===== ERROR ===== */
+        .error {
+            background: linear-gradient(135deg, rgba(255, 51, 51, 0.12) 0%, rgba(255, 51, 51, 0.05) 100%);
+            color: var(--error);
+            padding: 20px;
+            border-radius: 14px;
+            margin: 20px 0;
+            border-left: 4px solid var(--error);
+            border: 1px solid var(--border);
+            display: none;
+            animation: errorShake 0.4s ease-out;
+            font-weight: 600;
+        }
+
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            margin-top: 80px;
+            padding: 40px;
+            border-top: 1px solid var(--border);
+            color: var(--text-3);
+            font-size: 0.95em;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .footer p {
+            margin: 8px 0;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            color: var(--primary-light);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header {
+                padding: 50px 30px;
+            }
+
+            .header h1 {
+                font-size: 2.5em;
+            }
+
+            .container {
+                padding: 30px 15px;
+            }
+
+            .tab-content {
+                padding: 25px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>🔬 BioLit Intelligence</h1>
+                <p>AI-Powered Biomedical Literature Research Assistant</p>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number">30M+</div>
+                        <div class="stat-label">Papers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">99%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">&lt;2s</div>
+                        <div class="stat-label">Response Time</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab(event, 'search')">📚 Search Literature</button>
+            <button class="tab-button" onclick="switchTab(event, 'credibility')">⚠️ Credibility Check</button>
+            <button class="tab-button" onclick="switchTab(event, 'notes')">📝 Study Notes</button>
+        </div>
+
+        <!-- SEARCH TAB -->
+        <div id="search" class="tab-content active">
+            <div class="form-group">
+                <label for="searchQuery">🔍 Enter Your Research Query</label>
+                <input type="text" id="searchQuery" placeholder="Search: CRISPR, immunotherapy, gene therapy, protein folding...">
+            </div>
+            <button onclick="performSearch()"><span>🚀 Search Literature</span></button>
+            <div id="searchError" class="error"></div>
+            <div id="searchResults"></div>
+        </div>
+
+        <!-- CREDIBILITY CHECK TAB -->
+        <div id="credibility" class="tab-content">
+            <div class="form-group">
+                <label for="claim">📋 Paste Your Claim</label>
+                <textarea id="claim" placeholder="Enter any health, biotech, or scientific claim to fact-check..." rows="5"></textarea>
+            </div>
+            <button onclick="checkCredibility()"><span>✓ Verify Claim</span></button>
+            <div id="credibilityError" class="error"></div>
+            <div id="credibilityResults"></div>
+        </div>
+
+        <!-- STUDY NOTES TAB -->
+        <div id="notes" class="tab-content">
+            <div class="form-group">
+                <label for="abstract">📄 Research Abstract</label>
+                <textarea id="abstract" placeholder="Paste a research abstract or paper excerpt..." rows="5"></textarea>
+            </div>
+            <button onclick="generateNotes()"><span>📝 Generate Notes</span></button>
+            <div id="notesError" class="error"></div>
+            <div id="notesResults"></div>
+        </div>
+
+        <div class="footer">
+            <p>BioLit Intelligence © 2026 | Powered by <a href="#">PubMed API</a> & <a href="#">Groq AI</a></p>
+            <p>For Educational Purposes | Built with ❤️ for Bioinformatics</p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(event, tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-button');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function performSearch() {
+            const query = document.getElementById('searchQuery').value;
+            const errorDiv = document.getElementById('searchError');
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (!query.trim()) {
+                showError(errorDiv, '⚠️ Please enter a search query');
+                return;
+            }
+
+            resultsDiv.innerHTML = '<p style="color: var(--text-2); text-align: center; padding: 40px;">🔍 Searching 30M+ papers...</p>';
+            errorDiv.classList.remove('show');
+
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query })
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await response.json();
+                
+                if (!data.papers || data.papers.length === 0) {
+                    resultsDiv.innerHTML = '<p style="color: var(--text-2);">No results found. Try another query.</p>';
+                    return;
+                }
+
+                let html = `<div style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, rgba(0,255,136,0.12), rgba(0,255,136,0.05)); border-radius: 12px; border-left: 4px solid var(--success);">
+                    ✓ <strong>Found ${data.papers.length} Research Papers</strong>
+                </div>`;
+                
+                data.papers.forEach((paper, i) => {
+                    html += `
+                        <div class="paper">
+                            <h3>📖 ${paper.title}</h3>
+                            <div class="paper-meta">
+                                <span><strong>Authors:</strong> ${paper.authors}</span>
+                                <span><strong>Year:</strong> ${paper.date}</span>
+                            </div>
+                            <p>${paper.abstract}</p>
+                        </div>
+                    `;
+                });
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                showError(errorDiv, `❌ ${error.message}`);
+                resultsDiv.innerHTML = '';
+            }
+        }
+
+        async function checkCredibility() {
+            const claim = document.getElementById('claim').value;
+            const errorDiv = document.getElementById('credibilityError');
+            const resultsDiv = document.getElementById('credibilityResults');
+            
+            if (!claim.trim()) {
+                showError(errorDiv, '⚠️ Enter a claim to check');
+                return;
+            }
+
+            resultsDiv.innerHTML = '<p style="color: var(--text-2); text-align: center; padding: 40px;">🤖 AI is analyzing your claim...</p>';
+            errorDiv.classList.remove('show');
+
+            try {
+                const response = await fetch('/check-credibility', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ claim: claim })
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await response.json();
+                const analysis = data.analysis || 'No analysis';
+                const isMisinfo = analysis.includes('MISINFORMATION') || analysis.includes('❌');
+                
+                resultsDiv.innerHTML = `
+                    <div class="analysis ${isMisinfo ? 'misinformation' : 'credible'}">
+                        <h3>${isMisinfo ? '❌ MISINFORMATION' : '✓ CREDIBLE'}</h3>
+                        <p>${analysis}</p>
+                    </div>
+                `;
+            } catch (error) {
+                showError(errorDiv, `❌ ${error.message}`);
+                resultsDiv.innerHTML = '';
+            }
+        }
+
+        async function generateNotes() {
+            const abstract = document.getElementById('abstract').value;
+            const errorDiv = document.getElementById('notesError');
+            const resultsDiv = document.getElementById('notesResults');
+            
+            if (!abstract.trim()) {
+                showError(errorDiv, '⚠️ Paste an abstract first');
+                return;
+            }
+
+            resultsDiv.innerHTML = '<p style="color: var(--text-2); text-align: center; padding: 40px;">📝 Generating study notes...</p>';
+            errorDiv.classList.remove('show');
+
+            try {
+                const response = await fetch('/generate-notes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ abstract: abstract })
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await response.json();
+                resultsDiv.innerHTML = `<div class="notes">${data.notes || 'No notes'}</div>`;
+            } catch (error) {
+                showError(errorDiv, `❌ ${error.message}`);
+                resultsDiv.innerHTML = '';
+            }
+        }
+
+        function showError(el, msg) {
+            el.textContent = msg;
+            el.classList.add('show');
+        }
+    </script>
+</body>
+</html>
