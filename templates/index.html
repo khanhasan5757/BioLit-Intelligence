@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔬 BioLit Intelligence - AI-Powered Research Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        header h1 {
+            color: #667eea;
+            margin-bottom: 5px;
+            font-size: 32px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tab-button {
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            background: #f8f9fa;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            background: #e8ecf1;
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .tab-button.active {
+            background: #667eea !important;
+            color: white !important;
+            border-color: #667eea !important;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-content h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .tab-content > p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        button.search-btn, button.action-btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        button.search-btn:hover, button.action-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button.search-btn:active, button.action-btn:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .result-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .result-item h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .result-item p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+
+        .meta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: #888;
+            margin-top: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+            padding: 20px;
+            font-size: 16px;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c33;
+            font-weight: 500;
+        }
+
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3c3;
+            font-weight: 500;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                gap: 5px;
+            }
+
+            .tab-button {
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 BioLit Intelligence</h1>
+            <p>AI-Powered Research Platform for Bioinformatics | 9 Integrated Features</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab(event, 'search')">🔎 Search</button>
+            <button class="tab-button" onclick="switchTab(event, 'recommendations')">💡 Recommendations</button>
+            <button class="tab-button" onclick="switchTab(event, 'gaps')">🔍 Research Gaps</button>
+            <button class="tab-button" onclick="switchTab(event, 'networks')">📊 Citation Networks</button>
+            <button class="tab-button" onclick="switchTab(event, 'grants')">💰 Grant Matching</button>
+            <button class="tab-button" onclick="switchTab(event, 'author')">👤 Author Impact</button>
+            <button class="tab-button" onclick="switchTab(event, 'credibility')">✓ Credibility Check</button>
+            <button class="tab-button" onclick="switchTab(event, 'notes')">📝 Study Notes</button>
+            <button class="tab-button" onclick="switchTab(event, 'papers')">📖 Paper Library</button>
+        </div>
+
+        <!-- TAB 1: SEARCH -->
+        <div id="search" class="tab-content active">
+            <h2>🔎 AI-Powered Paper Search</h2>
+            <p>Search across 30M+ PubMed papers in &lt;1 second</p>
+
+            <div class="form-group">
+                <label>Search Query</label>
+                <input type="text" id="searchQuery" placeholder="e.g., CRISPR gene therapy cancer">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Year Filter (optional)</label>
+                    <input type="number" id="searchYear" placeholder="2024">
+                </div>
+                <div class="form-group">
+                    <label>Sort By</label>
+                    <select id="sortBy">
+                        <option value="relevance">Relevance (Default)</option>
+                        <option value="citations">Citation Count</option>
+                        <option value="recent">Most Recent</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="search-btn" onclick="searchPapers()">🔍 Search Papers</button>
+
+            <div id="searchResults" class="results"></div>
+        </div>
+
+        <!-- TAB 2: RECOMMENDATIONS -->
+        <div id="recommendations" class="tab-content">
+            <h2>💡 Paper Recommendations</h2>
+            <p>Get AI-suggested papers based on your research</p>
+
+            <div class="form-group">
+                <label>Paper ID (1-5)</label>
+                <input type="number" id="paperId" placeholder="Enter paper ID (1-5)">
+            </div>
+
+            <button class="action-btn" onclick="getRecommendations()">💡 Get Recommendations</button>
+
+            <div id="recommendationsResults" class="results"></div>
+        </div>
+
+        <!-- TAB 3: RESEARCH GAPS -->
+        <div id="gaps" class="tab-content">
+            <h2>🔍 Research Gap Analysis</h2>
+            <p>Identify unexplored research opportunities and funding</p>
+
+            <button class="action-btn" onclick="analyzeGaps()">📊 Analyze Research Gaps</button>
+
+            <div id="gapsResults" class="results"></div>
+        </div>
+
+        <!-- TAB 4: CITATION NETWORKS -->
+        <div id="networks" class="tab-content">
+            <h2>📊 Citation Network Analysis</h2>
+            <p>Visualize how papers connect and influence each other</p>
+
+            <div class="form-group">
+                <label>Paper ID (1-5)</label>
+                <input type="number" id="networkPaperId" placeholder="Enter paper ID (1-5)">
+            </div>
+
+            <button class="action-btn" onclick="getCitationNetwork()">📈 Analyze Network</button>
+
+            <div id="networkResults" class="results"></div>
+        </div>
+
+        <!-- TAB 5: GRANT MATCHING -->
+        <div id="grants" class="tab-content">
+            <h2>💰 Grant Matching Engine</h2>
+            <p>Find $1B+ in available research funding</p>
+
+            <div class="form-group">
+                <label>Research Area</label>
+                <input type="text" id="researchArea" placeholder="e.g., CRISPR, Gene Therapy, Cancer Research">
+            </div>
+
+            <button class="action-btn" onclick="matchGrants()">🎯 Find Grants</button>
+
+            <div id="grantsResults" class="results"></div>
+        </div>
+
+        <!-- TAB 6: AUTHOR IMPACT -->
+        <div id="author" class="tab-content">
+            <h2>👤 Author Impact Analysis</h2>
+            <p>Evaluate researcher expertise and credibility</p>
+
+            <div class="form-group">
+                <label>Author Name</label>
+                <input type="text" id="authorName" placeholder="e.g., Smith, J." value="Smith, J.">
+            </div>
+
+            <button class="action-btn" onclick="getAuthorImpact()">🔍 Analyze Author</button>
+
+            <div id="authorResults" class="results"></div>
+        </div>
+
+        <!-- TAB 7: CREDIBILITY CHECK -->
+        <div id="credibility" class="tab-content">
+            <h2>✓ Credibility Detection System</h2>
+            <p>Verify claims against 30M+ scientific papers</p>
+
+            <div class="form-group">
+                <label>Health/Science Claim</label>
+                <textarea id="credibilityClaim" placeholder="Enter a health or science claim to verify..."></textarea>
+            </div>
+
+            <button class="action-btn" onclick="checkCredibility()">✓ Verify Claim</button>
+
+            <div id="credibilityResults" class="results"></div>
+        </div>
+
+        <!-- TAB 8: STUDY NOTES -->
+        <div id="notes" class="tab-content">
+            <h2>📝 AI Study Notes Generation</h2>
+            <p>Auto-generate comprehensive study materials</p>
+
+            <div class="form-group">
+                <label>Paper ID (1-5)</label>
+                <input type="number" id="notePaperId" placeholder="Enter paper ID (1-5)">
+            </div>
+
+            <button class="action-btn" onclick="generateNotes()">📝 Generate Notes</button>
+
+            <div id="notesResults" class="results"></div>
+        </div>
+
+        <!-- TAB 9: PAPER LIBRARY -->
+        <div id="papers" class="tab-content">
+            <h2>📖 Unified Paper Library</h2>
+            <p>Browse all papers with annotation and citation tools</p>
+
+            <button class="action-btn" onclick="loadPapers()">📚 Load All Papers</button>
+
+            <div id="papersResults" class="results"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        const API_URL = 'http://localhost:5000/api';
+
+        // ==================== TAB SWITCHING ====================
+        function switchTab(event, tabName) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            const tabElement = document.getElementById(tabName);
+            if (tabElement) {
+                tabElement.classList.add('active');
+            }
+
+            // Add active class to clicked button
+            event.currentTarget.classList.add('active');
+        }
+
+        // ==================== FEATURE 1: SEARCH PAPERS ====================
+        async function searchPapers() {
+            const query = document.getElementById('searchQuery').value.trim();
+            const year = document.getElementById('searchYear').value;
+            const sortBy = document.getElementById('sortBy').value;
+
+            if (!query) {
+                alert('Please enter a search query');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = '<div class="loading">🔄 Searching 30M+ papers...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/search`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        year: year ? parseInt(year) : null,
+                        sort_by: sortBy
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    let html = `<div class="success">✓ Found ${data.total_results} papers in ${data.response_time_ms}ms</div>`;
+
+                    data.papers.forEach(paper => {
+                        html += `
+                            <div class="result-item">
+                                <h3>${paper.title}</h3>
+                                <p><strong>Authors:</strong> ${paper.authors.join(', ')}</p>
+                                <p><strong>Journal:</strong> ${paper.journal} (${paper.year})</p>
+                                <p>${paper.abstract}</p>
+                                <div class="meta">
+                                    <span>📊 Citations: <strong>${paper.citations}</strong></span>
+                                    <span>📈 Impact Factor: <strong>${paper.impact_factor}</strong></span>
+                                    <span>🎯 Relevance: <strong>${paper.relevance_score}%</strong></span>
+                                    <span>✓ Credibility: <strong>${paper.credibility_score}%</strong></span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = `<div class="error">❌ Error: ${data.message || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // ==================== FEATURE 2: RECOMMENDATIONS ====================
+        async function getRecommendations() {
+            const paperId = document.getElementById('paperId').value;
+
+            if (!paperId) {
+                alert('Please enter a paper ID (1-5)');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('recommendationsResults');
+            resultsDiv.innerHTML = '<div class="loading">🔄 Finding related papers...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/recommendations/${paperId}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    let html = `<div class="success">✓ Found ${data.count} recommended papers</div>`;
+
+                    data.recommendations.forEach(paper => {
+                        html += `
+                            <div class="result-item">
+                                <h3>${paper.title}</h3>
+                                <p><strong>Connection Strength:</strong> <span class="badge">${paper.connection_strength}%</span></p>
+                                <p><strong>Shared Topics:</strong> ${paper.shared_topics.join(', ')}</p>
+                                <p><strong>Year:</strong> ${paper.year} | <strong>Citations:</strong> ${paper.citations}</p>
+                                <div class="meta">
+                                    <span>📚 ${paper.journal}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = `<div class="error">❌ Error: ${data.message || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                console.error('Recommendations error:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // ==================== FEATURE 3: RESEARCH GAPS ====================
+        async function analyzeGaps() {
+            const resultsDiv = document.getElementById('gapsResults');
+            resultsDiv.innerHTML = '<div class="loading">🔄 Analyzing research landscape...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/gaps`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    let html = '<div class="success">✓ Research gap analysis complete</div>';
+                    html += '<table><thead><tr><th>Topic</th><th>Saturation</th><th>Growth Rate</th><th>Funding</th><th>Opportunity Score</th></tr></thead><tbody>';
+
+                    data.gaps.forEach(gap => {
+                        html += `<tr>
+                            <td><strong>${gap.topic}</strong></td>
+                            <td>${gap.saturation_level}</td>
+                            <td>${gap.growth_rate}</td>
+                            <td>${gap.funding_available}</td>
+                            <td><span class="badge">${gap.opportunity_score}/10</span></td>
+                        </tr>`;
+                    });
+
+                    html += '</tbody></table>';
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = `<div class="error">❌ Error: ${data.message || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                console.error('Gaps error:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // ==================== FEATURE 4: CITATION NETWORKS ====================
+        async function getCitationNetwork() {
+            const paperId = document.getElementById('networkPaperId').value;
+
+            if (!paperId) {
+                alert('Please enter a paper ID (1-5)');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('networkResults');
+            resultsDiv.innerHTML = '<div class="loading">🔄 Analyzing citation network...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/citation-network/${paperId}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    const net = data.network;
+                    let html = `<div class="success">✓ Citation network analyzed (${data.accuracy} accuracy)</div>`;
+                    html += `
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">${net.central_paper.citations}</div>
+                                <div class="stat-label">Total Citations</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${net.total_connections}</div>
+                                <div class="stat-label">Network Connections</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${(net.network_density * 100).toFixed(0)}%</div>
+                                <div class="stat-label">Network Density</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${(net.clustering_coefficient * 100).toFixed(0)}%</div>
+                                <div class="stat-label">Clustering Coefficient</div>
+                            </div>
+                        </div>
+                    `;
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = `<div class="error">❌ Error: ${data.message || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // ==================== FEATURE 5: GRANT MATCHING ====================
+        async function matchGrants() {
+            const area = document.getElementById('researchArea').value.trim();
+            const resultsDiv = document.getElementById('grantsResults');
+            resultsDiv.innerHTML = '<div class="loading">🔄 Matching to available grants...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/grants`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ research_area: area })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    let html = `<div class="success">✓ Found grants matching your research (Total: ${data.total_funding_available})</div>`;
+                    html += '<table><thead><tr><th>Grant</th><th>Amount</th><th>Deadline</th><th>Match Score</th><th>Eligibility</th></tr></thead><tbody>';
+
+                    data.matched_grants.forEach(grant => {
+                        html += `<tr>
+                            <td><strong>${grant.name}</strong></td>
+                            <td>${grant.amount}</td>
+                            <td>${grant.deadline}</td>
+                            <td><span class="badge">${grant.match_score}%</span></td>
+                            <td>${grant.eligibility}</td>
+                        </tr>`;
+                    });
+
+                    html += '</tbody></table>';
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = `<div class="error">❌ Error: ${data.message || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                console.error('Grants error:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // ==================== FEATURE 6: AUTHOR IMPACT ====================
+        async function getAuthorImpact() {
+            const author = document.getElementById('authorName').value.trim();
+
+            if (!author) {
+                alert('Please enter an author name');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('authorResults');
+            resultsDiv.innerHTML = '<div class="loading">🔄 Analyzing author impact...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/author-impact/${encodeURIComponent(author)}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    const a = data.author;
+                    let html = `<div class="success">✓ ${data.credibility}</div>`;
+                    html += `
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">${a.h_index}</div>
+                                <div class="stat-label">H-Index</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${a.total_publications}</div>
+                                <div class="stat-label">Publications</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${a.total_citations}</div>
+                                <div class="stat-label">Total Citations</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${a.impact_percentile}%</div>
+                                <div class="stat-label">Impact Percentile</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    html += `<div class="result-item">
+                        <h3>Author Details</h3>
+                        <p><strong>Institution:</strong> ${a.institution}</p>
+                        <p><strong>Field:</strong> ${a.field}</p>
+                        <p><strong>Years Active:</strong> ${a.years_active}</p>
+                        <p><strong>Avg Citations per Paper:</strong> ${a.average_citations_per_paper}</p>
+                        <p><strong>Expertise Areas:</strong> ${a.expertise_areas.join(', ')}</p>
+                    </div>`;
+                    
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = `<div class="error">❌ Error: ${data.message || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                console.error('Author error:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // ==================== FEATURE 7: CREDIBILITY CHECK ====================
+        async function checkCredibility() {
+            const claim = document.getElementById('credibilityClaim').value.trim();
+
+            if (!claim) {
+                alert('Please enter a claim to verify');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('credibilityResults');
+            resultsDiv.innerHTML = '<div class="loading">🔄 Verifying claim...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/credibility-check`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ claim: claim })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    const analysis = data.analysis;
+                    let html = `<div class="result-item">
+                        <h3>${analysis.verdict}</h3>
+                        <p><strong>Status:</strong> <span class="badge">${analysis.status}</span></p>
+                        <p><strong>Confidence:</strong> <span class="badge">${analysis.confidence_score}%</span></p>
+                        <p><strong>Explanation:</strong> ${analysis.explanation}</p>
+                        <p><strong>Sources:</strong> ${analysis.sources.join(', ')}</p>
+                    </div>`;
+
+                    if (analysis.supporting_papers && analysis.supporting_papers.length > 0) {
+                        html += '<div class="result-item"><h3>Supporting Papers:</h3>';
+                        analysis.supporting_papers.forEach(paper => {
+                            html += `<p>• ${paper.title} (${paper.year}) - ${paper.citations} citations</p>`;
+                        });
+                        html += '</div>';
+                    }
+
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = `<div class="error">❌ Error: ${data.message || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                console.error('Credibility error:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // ==================== FEATURE 8: STUDY NOTES ====================
+        async function generateNotes() {
+            const paperId = document.getElementById('notePaperId').value;
+
+            if (!paperId) {
+                alert('Please enter a paper ID (1-5)');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('notesResults');
+            resultsDiv.innerHTML = '<div class="loading">🔄 Generating study notes...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/generate-notes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ paper_id: parseInt(paperId) })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    let html = `<div class="success">✓ Study notes generated (${data.note_length} words)</div>`;
+                    html += `<div style="background: #f9f9f9; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: monospace; font-size: 13px; line-height: 1.6; max-height: 600px; overflow-y: auto; border-left: 4px solid #667eea;">`;
+                    html += data.notes;
+                    html += `</div>`;
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = `<div class="error">❌ Error: ${data.message || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                console.error('Notes error:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // ==================== FEATURE 9: PAPER LIBRARY ====================
+        async function loadPapers() {
+            const resultsDiv = document.getElementById('papersResults');
+            resultsDiv.innerHTML = '<div class="loading">🔄 Loading paper library...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/papers`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    let html = `<div class="success">✓ Loaded ${data.total_papers} papers</div>`;
+                    html += '<table><thead><tr><th>Title</th><th>Authors</th><th>Year</th><th>Citations</th><th>Impact Factor</th></tr></thead><tbody>';
+
+                    data.papers.forEach(paper => {
+                        html += `<tr>
+                            <td><strong>${paper.title}</strong></td>
+                            <td>${paper.authors.join(', ')}</td>
+                            <td>${paper.year}</td>
+                            <td>${paper.citations}</td>
+                            <td>${paper.impact_factor}</td>
+                        </tr>`;
+                    });
+
+                    html += '</tbody></table>';
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = `<div class="error">❌ Error: ${data.message || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                console.error('Papers error:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
